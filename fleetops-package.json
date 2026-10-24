@@ -1,0 +1,42 @@
+{
+  "PackageId": "uad-fleet-operations",
+  "SchemaVersion": 1,
+  "ExportVersion": "0.0.8.1-export-r1",
+  "GameRelativePath": "lab/fleet-operations/game",
+  "DataRelativePath": "lab/fleet-operations/userdata",
+  "LogsRelativePath": "lab/fleet-operations/logs",
+  "GameAssemblyHash": "BD1BD5DC13318348D13DE10CDB6B80DD0322E55ACCE88447C92BD7252262ACC8",
+  "MetadataHash": "E98209DAF62B59EC0545784F6A0A5C216499BBB8C6A9A17D19BECB6D9A98BD7F",
+  "UnityPlayerHash": "8A7DF73591367FFBCD7230DE131ADCD00A84C969225CD82E0327AB5F4D8D29E5",
+  "RootFiles": [
+    "Ultimate Admiral Dreadnoughts.exe",
+    "UnityPlayer.dll",
+    "GameAssembly.dll",
+    "UnityCrashHandler64.exe",
+    "baselib.dll",
+    "steam_appid.txt",
+    "version.xml",
+    "concrt140.dll",
+    "msvcp140.dll",
+    "vcamp140.dll",
+    "vccorlib140.dll",
+    "vcomp140.dll",
+    "vcruntime140.dll"
+  ],
+  "PayloadHashes": {
+    "payload/Mods/FleetOperations.dll": "31B33E593B3829C003FE681270C1D56C9011DD1AB26B9B6B3A7694F23CB47056",
+    "payload/Mods/FleetOpsLabIsolation.dll": "93807F6DA4FDCCAB9415CFFE760443A855C7C6F099A609BB3E88821418C4D3E5"
+  },
+  "Dependencies": {
+    "MelonLoader": {
+      "Url": "https://github.com/LavaGang/MelonLoader/releases/download/v0.6.6/MelonLoader.x64.zip",
+      "FileName": "MelonLoader.x64.zip",
+      "Sha256": "687B82605606E941CEFDC007B880B720922CC319BB70270064590D4038C3C0DB"
+    },
+    "DotNet": {
+      "Url": "https://builds.dotnet.microsoft.com/dotnet/Runtime/6.0.36/dotnet-runtime-6.0.36-win-x64.zip",
+      "FileName": "dotnet-runtime-6.0.36-win-x64.zip",
+      "Sha512": "935db5c6cee19f2c016e67168bfae7b491044735de76c673abb3b125dd325fd5e779d7efe12ba80178d46689ae70a25e558a3fa846417d44c5f4ca256e7f4bf2"
+    }
+  }
+}

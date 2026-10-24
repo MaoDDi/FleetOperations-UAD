@@ -1,0 +1,24 @@
+using System.Numerics;
+using FleetOps.Experimental;
+using G = FleetOps.Experimental.FleetGunImpactGeometry;
+int passed=0,failed=0;
+void Check(string name, Func<bool> test) { try { if (!test()) throw new Exception("assertion failed"); Console.WriteLine("PASS "+name); passed++; } catch(Exception e) { Console.WriteLine("FAIL "+name+": "+e.Message); failed++; } }
+G.Box Box(int id,Vector3 center, Vector3 half) => new(id,Matrix4x4.Identity,center,half);
+bool Near(Vector3 a,Vector3 b) => Vector3.Distance(a,b)<.0001f;
+var unit=Box(1,Vector3.Zero,Vector3.One);
+Check("segment crosses box at first surface",()=>G.TryIntersectSegment(new(-3,0,0),new(3,0,0),unit,out var h)&&MathF.Abs(h.Fraction-1f/3)<.0001f&&Near(h.Point,new(-1,0,0))&&Near(h.Normal,new(-1,0,0)));
+Check("miss stays miss",()=>!G.TryIntersectSegment(new(-3,2,0),new(3,2,0),unit,out _));
+Check("nearest victim independent of candidate order",()=>G.TryClosest(new(-5,0,0),new(9,0,0),new[]{Box(99,new(5,0,0),Vector3.One),unit},out var h)&&h.Id==1&&Near(h.Point,new(-1,0,0)));
+Check("start inside returns first contact fraction zero",()=>G.TryIntersectSegment(Vector3.Zero,new(3,0,0),unit,out var h)&&h.Fraction==0&&Near(h.Point,Vector3.Zero));
+Check("nonuniform scaled rotated translated box",()=> {var m=Matrix4x4.CreateScale(2,3,.5f)*Matrix4x4.CreateRotationY(.7f)*Matrix4x4.CreateTranslation(123,7,-20);Matrix4x4.Invert(m,out var inv);var a=Vector3.Transform(new(-3,0,0),m);var b=Vector3.Transform(new(3,0,0),m);return G.TryIntersectSegment(a,b,new(7,inv,Vector3.Zero,Vector3.One),out var h)&&MathF.Abs(h.Fraction-1f/3)<.0001f&&Near(h.Point,Vector3.Transform(new(-1,0,0),m))&&Near(h.Normal,Vector3.TransformNormal(-Vector3.UnitX,Matrix4x4.CreateRotationY(.7f)));});
+Check("zero length never damages even inside",()=>!G.TryIntersectSegment(Vector3.Zero,Vector3.Zero,unit,out _));
+Check("nonfinite endpoint rejected",()=>!G.TryIntersectSegment(new(float.NaN,0,0),Vector3.Zero,unit,out _)&&!G.TryIntersectSegment(new(-3,0,0),new(float.PositiveInfinity,0,0),unit,out _));
+Check("nonfinite or singular matrix rejected",()=> {var bad=Matrix4x4.Identity;bad.M11=float.NaN;return !G.TryIntersectSegment(new(-3,0,0),new(3,0,0),new(4,bad,Vector3.Zero,Vector3.One),out _)&&!G.TryIntersectSegment(new(-3,0,0),new(3,0,0),new(4,new Matrix4x4(),Vector3.Zero,Vector3.One),out _);});
+Check("hidden calculation anchor has no special hit privilege",()=>G.TryClosest(new(-3,0,0),new(3,0,0),new[]{Box(42,new(5000,0,0),Vector3.One),unit},out var h)&&h.Id==1);
+Check("anchor can be hit only when its real geometry intersects",()=>G.TryClosest(new(-3,0,0),new(3,0,0),new[]{Box(42,Vector3.Zero,Vector3.One)},out var h)&&h.Id==42);
+Check("thin native deck plane intersection",()=>G.TryIntersectSegment(new(0,5,0),new(0,-5,0),Box(3,Vector3.Zero,new(10,0,10)),out var h)&&MathF.Abs(h.Fraction-.5f)<.0001f);
+var stamp=new G.TraceStamp(5,10,20,30,40);
+Check("same live native generation can continue",()=>G.CanContinueTrace(stamp,stamp,1,2,10,Vector3.One,Vector3.One));
+Check("pooled pointer generation or trajectory change cannot sweep",()=>!G.CanContinueTrace(stamp,stamp with{Generation=6},1,2,10,Vector3.One,Vector3.One)&&!G.CanContinueTrace(stamp,stamp with{Trajectory=41},1,2,10,Vector3.One,Vector3.One));
+Check("rewind or teleport cannot connect to map origin",()=>!G.CanContinueTrace(stamp,stamp,2,1,10,Vector3.One,Vector3.One)&&!G.CanContinueTrace(stamp,stamp,1,2,10,new(9000,0,3000),Vector3.Zero));
+Console.WriteLine($"RESULT {passed} passed, {failed} failed");return failed==0?0:1;
